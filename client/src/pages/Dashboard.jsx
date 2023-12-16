@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
 import { FaSignOutAlt, FaTrash, FaUpload } from "react-icons/fa";
 import {
   MdOutlineKeyboardArrowLeft,
@@ -14,37 +16,44 @@ import { setUser, signOut } from "../redux/auth/authSlice.js";
 import { useUserQuery } from "../redux/auth/authAPI.js";
 import imgPlaceholder from "../assets/img-placeholder.jpg";
 
+const options = [
+  { value: "chocolate", label: "Chocolate" },
+  { value: "strawberry", label: "Strawberry" },
+  { value: "vanilla", label: "Vanilla" },
+];
+
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { data: user } = useUserQuery();
   const [images, setImages] = useState([]);
   const formik = useFormik({
     initialValues: {
+      flavour: [],
+      date: "",
       photos: null,
     },
   });
 
   const handleDeletePhoto = (idx) => {
-    const tempImages = [...images.slice(0, idx), ...images.slice(idx + 1)];
+    const tempImages = [...images];
+    tempImages.splice(idx, 1);
 
     const dataTransfer = new DataTransfer();
 
     for (const image of tempImages) dataTransfer.items.add(image);
 
     formik.setFieldValue("photos", dataTransfer.files);
-    setImages(tempImages);
   };
 
   const handleChangePhoto = (idx, newImage) => {
-    const newImages = [...images];
-    newImages[idx] = newImage;
+    const tempImages = [...images];
+    tempImages[idx] = newImage;
 
     const dataTransfer = new DataTransfer();
 
-    for (const image of newImages) dataTransfer.items.add(image);
+    for (const image of tempImages) dataTransfer.items.add(image);
 
     formik.setFieldValue("photos", dataTransfer.files);
-    setImages(newImages);
   };
 
   useEffect(() => {
@@ -132,6 +141,37 @@ const Dashboard = () => {
               )}
             </Swiper>
           </div>
+          <div>
+            <Select
+              placeholder="Select your flavours"
+              defaultValue={formik.values.flavour}
+              options={options}
+              isMulti
+              isSearchable
+              closeMenuOnSelect={false}
+              onChange={(e) => formik.setFieldValue("flavour", e)}
+              noOptionsMessage={() => "No flavour available!"}
+              classNames={{
+                control: (state) =>
+                  `!input !input-md !min-h-[3rem] !h-auto !input-bordered !bg-transparent !rounded !border-gray-500/50 focus-within:!outline-none ${
+                    state.isFocused ? "!shadow-none" : ""
+                  }`,
+                valueContainer: () => "!p-0",
+                placeholder: () => "!m-0",
+              }}
+            />
+          </div>
+          <div>
+            <DatePicker
+              dateFormat="dd/MM/yyyy"
+              name="date"
+              placeholderText={`Date`}
+              selected={formik.values.date}
+              className={`input input-md bg-transparent input-bordered border-gray-500/50 rounded focus:outline-none focus:border-green-slimy w-full`}
+              wrapperClassName="w-full"
+              onChange={(date) => formik.setFieldValue("date", date)}
+            />
+          </div>
           <div className="flex flex-col gap-3 w-full">
             <label className="relative input input-md input-bordered flex items-center border-gray-500/50 rounded focus-within:outline-0 bg-transparent">
               {formik.values.photos?.length ? (
@@ -150,7 +190,6 @@ const Dashboard = () => {
                 onChange={(e) =>
                   formik.setFieldValue("photos", e.currentTarget.files)
                 }
-                onBlur={formik.handleBlur}
               />
             </label>
           </div>
