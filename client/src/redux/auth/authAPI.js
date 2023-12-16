@@ -30,6 +30,7 @@ const authAPI = baseAPI.injectEndpoints({
     }),
     user: build.query({
       query: () => "user",
+      keepUnusedDataFor: 1,
     }),
   }),
 });

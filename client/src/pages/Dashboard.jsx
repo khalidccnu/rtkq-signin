@@ -93,7 +93,7 @@ const Dashboard = () => {
             >
               {images.length ? (
                 images?.map((image, idx) => (
-                  <SwiperSlide>
+                  <SwiperSlide key={idx}>
                     <div className={`relative`}>
                       <div className={`absolute top-3 right-3 space-x-1.5`}>
                         <label className="relative btn btn-sm bg-green-600 hover:bg-transparent text-white hover:text-green-600 !border-green-600 normal-case rounded">
