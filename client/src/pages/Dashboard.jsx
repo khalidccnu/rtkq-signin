@@ -29,7 +29,8 @@ const Dashboard = () => {
   const formik = useFormik({
     initialValues: {
       flavour: [],
-      date: "",
+      dateStart: "",
+      dateEnd: "",
       photos: null,
     },
   });
@@ -164,12 +165,17 @@ const Dashboard = () => {
           <div>
             <DatePicker
               dateFormat="dd/MM/yyyy"
-              name="date"
-              placeholderText={`Date`}
-              selected={formik.values.date}
+              placeholderText={`Select your range`}
+              selected={formik.values.dateStart}
+              startDate={formik.values.dateStart}
+              endDate={formik.values.dateEnd}
               className={`input input-md bg-transparent input-bordered border-gray-500/50 rounded focus:outline-none focus:border-green-slimy w-full`}
               wrapperClassName="w-full"
-              onChange={(date) => formik.setFieldValue("date", date)}
+              onChange={(dates) => {
+                formik.setFieldValue("dateStart", dates[0]);
+                formik.setFieldValue("dateEnd", dates[1]);
+              }}
+              selectsRange
             />
           </div>
           <div className="flex flex-col gap-3 w-full">
