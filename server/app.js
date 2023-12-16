@@ -4,6 +4,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 const createJWT = (id) => {
   return jwt.sign({ _id: id }, "xyz", {
@@ -25,15 +27,13 @@ const createJWT = (id) => {
 };
 
 const verifyJWT = (req, res, next) => {
-  const authorization = req.headers.authorization;
+  const authorization = req.cookies?.token;
 
   if (!authorization) {
     return res.status(401).json({ message: "Unauthorized access!" });
   }
 
-  const token = authorization.split(" ")[1];
-
-  jwt.verify(token, "xyz", (err, decoded) => {
+  jwt.verify(authorization, "xyz", (err, decoded) => {
     if (err) return res.status(403).json({ message: "Forbidden access!" });
 
     req.decoded = decoded;
@@ -71,10 +71,13 @@ const mdbClient = new MongoClient("mongodb://127.0.0.1:27017", {
       const token = createJWT(user._id);
       delete user.password;
 
-      res.json({
-        message: "Sign in successful!",
-        accessToken: token,
-      });
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          maxAge: 3600000,
+          sameSite: "lax",
+        })
+        .json({ message: "Sign in successful!" });
     });
 
     app.post("/signup", async (req, res) => {
@@ -97,6 +100,10 @@ const mdbClient = new MongoClient("mongodb://127.0.0.1:27017", {
 
       await users.insertOne(user);
       res.json({ message: "User registered successfully!" });
+    });
+
+    app.post("/signout", (req, res) => {
+      res.clearCookie("token").json({ message: "Sign out successfully!" });
     });
 
     app.get("/user", verifyJWT, async (req, res) => {

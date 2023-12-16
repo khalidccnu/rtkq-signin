@@ -1,12 +1,9 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import Cookies from "js-cookie";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import { setUser } from "../redux/auth/authSlice.js";
-import { useSignInMutation, useUserQuery } from "../redux/auth/authAPI.js";
+import { useSignInMutation } from "../redux/auth/authAPI.js";
 import SignUp from "../components/SignUp.jsx";
 
 const validationSchema = yup.object({
@@ -23,9 +20,7 @@ const validationSchema = yup.object({
 const SignIn = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoading: isHold, data: user, refetch } = useUserQuery();
   const [signIn, { isLoading }] = useSignInMutation();
-  const dispatch = useDispatch();
   const fromURL = location.state?.fromURL.pathname;
 
   const formik = useFormik({
@@ -40,9 +35,7 @@ const SignIn = () => {
       if (response.error) {
         toast.error(response.error.data.message);
       } else {
-        Cookies.set("token", response.data.accessToken, { expires: 3 });
-        refetch();
-        navigate(fromURL || "dashboard");
+        navigate(fromURL || "/dashboard");
         toast.success(response.data.message);
       }
     },
@@ -54,10 +47,6 @@ const SignIn = () => {
         "Only registered user can access this page. Please, login first!"
       );
   }, []);
-
-  useEffect(() => {
-    if (!isHold) dispatch(setUser(user));
-  }, [isHold]);
 
   return (
     <section className="py-10">
