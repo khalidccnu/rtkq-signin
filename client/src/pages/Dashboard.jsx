@@ -10,13 +10,13 @@ import {
   MdOutlineKeyboardArrowRight,
 } from "react-icons/md";
 import { TbReplaceFilled } from "react-icons/tb";
-import { removeUser } from "../redux/auth/authSlice.js";
-import { useSignOutMutation } from "../redux/auth/authAPI.js";
+import { setUser, signOut } from "../redux/auth/authSlice.js";
+import { useUserQuery } from "../redux/auth/authAPI.js";
 import imgPlaceholder from "../assets/img-placeholder.jpg";
 
 const Dashboard = () => {
-  const [signOut] = useSignOutMutation();
   const dispatch = useDispatch();
+  const { data: user } = useUserQuery();
   const [images, setImages] = useState([]);
   const formik = useFormik({
     initialValues: {
@@ -55,6 +55,10 @@ const Dashboard = () => {
     }
   }, [formik.values.photos]);
 
+  useEffect(() => {
+    if (user) dispatch(setUser(user));
+  }, [user]);
+
   return (
     <section className={`py-10`}>
       <div className="container">
@@ -62,10 +66,7 @@ const Dashboard = () => {
           <Link
             to={`/`}
             className={`inline-flex bg-green-600 text-white hover:bg-transparent hover:text-green-600 border border-green-600 px-3 py-1 rounded cursor-pointer transition-colors duration-500`}
-            onClick={() => {
-              signOut();
-              dispatch(removeUser());
-            }}
+            onClick={() => dispatch(signOut())}
           >
             <FaSignOutAlt />
           </Link>

@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
+import { setToken } from "../redux/auth/authSlice.js";
 import { useSignInMutation } from "../redux/auth/authAPI.js";
 import SignUp from "../components/SignUp.jsx";
 
@@ -20,6 +22,7 @@ const validationSchema = yup.object({
 const SignIn = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [signIn, { isLoading }] = useSignInMutation();
   const fromURL = location.state?.fromURL.pathname;
 
@@ -35,6 +38,7 @@ const SignIn = () => {
       if (response.error) {
         toast.error(response.error.data.message);
       } else {
+        dispatch(setToken(response.data.token));
         navigate(fromURL || "/dashboard");
         toast.success(response.data.message);
       }

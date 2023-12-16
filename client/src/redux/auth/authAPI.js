@@ -10,6 +10,7 @@ const authAPI = baseAPI.injectEndpoints({
           body: credentials,
         };
       },
+      invalidatesTags: ["auth"],
     }),
     signUp: build.mutation({
       query: (credentials) => {
@@ -20,24 +21,11 @@ const authAPI = baseAPI.injectEndpoints({
         };
       },
     }),
-    signOut: build.mutation({
-      query: () => {
-        return {
-          url: "signout",
-          method: "post",
-        };
-      },
-    }),
     user: build.query({
       query: () => "user",
-      keepUnusedDataFor: 1,
+      providesTags: ["auth"],
     }),
   }),
 });
 
-export const {
-  useSignInMutation,
-  useSignUpMutation,
-  useSignOutMutation,
-  useUserQuery,
-} = authAPI;
+export const { useSignInMutation, useSignUpMutation, useUserQuery } = authAPI;
