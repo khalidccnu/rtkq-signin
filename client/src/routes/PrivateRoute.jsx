@@ -1,16 +1,18 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useUserQuery } from "../redux/auth/authAPI.js";
 
 const PrivateRoute = ({ children }) => {
   const location = useLocation();
-  const token = Cookies.get("token");
+  const { isLoading, data: user } = useUserQuery();
 
-  return token ? (
-    children
-  ) : (
-    <Navigate to="/" state={{ fromURL: location }}></Navigate>
-  );
+  return !isLoading ? (
+    user ? (
+      children
+    ) : (
+      <Navigate to="/" state={{ fromURL: location }}></Navigate>
+    )
+  ) : null;
 };
 
 export default PrivateRoute;

@@ -23,7 +23,7 @@ const validationSchema = yup.object({
 const SignIn = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoading: isHold, data, refetch } = useUserQuery();
+  const { isLoading: isHold, data: user, refetch } = useUserQuery();
   const [signIn, { isLoading }] = useSignInMutation();
   const dispatch = useDispatch();
   const fromURL = location.state?.fromURL.pathname;
@@ -56,7 +56,7 @@ const SignIn = () => {
   }, []);
 
   useEffect(() => {
-    if (!isHold) dispatch(setUser(data));
+    if (!isHold) dispatch(setUser(user));
   }, [isHold]);
 
   return (
